@@ -1,0 +1,37 @@
+import Flutter
+import UIKit
+import google_mobile_ads
+
+public class PreloadGoogleAdsPlugin: NSObject, FlutterPlugin {
+  static var channel: FlutterMethodChannel?
+  
+  public static func register(with registrar: FlutterPluginRegistrar) {
+    channel = FlutterMethodChannel(name: "com.plug.preload/adButtonStyle", binaryMessenger: registrar.messenger())
+    let instance = PreloadGoogleAdsPlugin()
+    
+    let mediumFactory = NativeAdFactoryMedium(styleMap: [:])
+    FLTGoogleMobileAdsPlugin.registerNativeAdFactory(UIApplication.shared.delegate as! FlutterPluginRegistry, factoryId: "medium_native", nativeAdFactory: mediumFactory)
+    
+    let smallFactory = NativeAdFactorySmall(styleMap: [:])
+    FLTGoogleMobileAdsPlugin.registerNativeAdFactory(UIApplication.shared.delegate as! FlutterPluginRegistry, factoryId: "small_native", nativeAdFactory: smallFactory)
+    
+    registrar.addMethodCallDelegate(instance, channel: channel!)
+  }
+
+  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    switch call.method {
+    case "setAdStyle":
+      if let arguments = call.arguments as? [String: Any] {
+        // In a real iOS implementation, we would store this style
+        // and use it when creating the native ad views.
+        // For now, we'll just acknowledge receipt.
+        NotificationCenter.default.post(name: NSNotification.Name("PreloadGoogleAds_UpdateStyle"), object: nil, userInfo: arguments)
+        result(nil)
+      } else {
+        result(FlutterError(code: "INVALID_ARGUMENT", message: "Expected a style map", details: nil))
+      }
+    default:
+      result(FlutterMethodNotImplemented)
+    }
+  }
+}
