@@ -53,6 +53,13 @@ void main() {
       expect(loadCalls, isEmpty);
     });
 
+    test('rewarded makes no request', () async {
+      final loader = OnDemandRewardedAd(adUnitId: 'unit');
+
+      expect(await loader.load(), isNull);
+      expect(loadCalls, isEmpty);
+    });
+
     test('app open makes no request', () async {
       final appOpen = OnDemandAppOpenAd(adUnitId: 'unit');
 
@@ -177,6 +184,30 @@ void main() {
 
       await appOpen.loadAndShow();
       await appOpen.loadAndShow();
+
+      expect(loadCalls.length, 2);
+    });
+  });
+
+  group('OnDemandRewardedAd', () {
+    test('load gives up with null after the timeout', () async {
+      final loader = OnDemandRewardedAd(
+        adUnitId: 'unit',
+        loadTimeout: const Duration(milliseconds: 50),
+      );
+
+      expect(await loader.load(), isNull);
+      expect(loadCalls.length, 1);
+    });
+
+    test('makes a fresh request for every call, never a cached ad', () async {
+      final loader = OnDemandRewardedAd(
+        adUnitId: 'unit',
+        loadTimeout: const Duration(milliseconds: 30),
+      );
+
+      await loader.load();
+      await loader.load();
 
       expect(loadCalls.length, 2);
     });

@@ -28,5 +28,6 @@ export 'native_ad/load_native.dart';
 export 'native_ad/native_ad_style.dart';
 export 'native_ad/show_native.dart';
 export 'rewarded_ad/rewarded_ad.dart';
+export 'rewarded_ad/on_demand_rewarded_ad.dart';
 export 'rewarded_inter_ad/rewarded_inter_ad.dart';
 export 'rewarded_inter_ad/on_demand_rewarded_inter_ad.dart';
