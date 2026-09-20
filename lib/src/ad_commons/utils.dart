@@ -89,6 +89,7 @@ Future<AdConfigData> setConfigData(AdConfigData? adConfig) async {
           adConfig?.adFlag?.showSplashAd ?? preData.adFlag?.showSplashAd,
     ),
     themeMode: adConfig?.themeMode ?? preData.themeMode,
+    nativeRetryLimit: adConfig?.nativeRetryLimit ?? preData.nativeRetryLimit,
     nativeADLayout: NativeADLayout(
       lightDecoration: adConfig?.nativeADLayout?.lightDecoration ??
           preData.nativeADLayout?.lightDecoration,
@@ -281,6 +282,9 @@ String get unitIDRewarded => config.adIDs?.rewardedId ?? AdTestIds.rewarded;
 /// Retrieves the Rewarded Interstitial Ad Unit ID.
 String get unitIDRewardedInter =>
     config.adIDs?.rewardedInterstitialId ?? AdTestIds.rewardedInterstitial;
+
+/// Retry limit for failed native loads; `null` means unlimited (legacy).
+int? get nativeRetryLimit => config.nativeRetryLimit;
 
 /// Determines if any ads should be shown based on flags.
 bool get shouldShowAd => config.adFlag?.showAd == true;

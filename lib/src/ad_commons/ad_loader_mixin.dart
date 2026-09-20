@@ -43,6 +43,13 @@ abstract class BaseAdLoader with AdLoaderMixin {
     return DateTime.now().subtract(maxCacheDuration).isAfter(loadTime!);
   }
 
+  /// Automatic retries allowed after a failed load, counted per failure
+  /// chain: once they are used up the loader stops and waits for the next
+  /// explicit request. `null` (the default) keeps the original behavior --
+  /// keep retrying with backoff, indefinitely. See
+  /// [AdConfigData.nativeRetryLimit].
+  int? get maxRetriesPerRequest => null;
+
   /// Cancels any scheduled background reload timer to prevent memory leaks.
   void cancelReloadTimer() {
     _reloadTimer?.cancel();
@@ -78,12 +85,39 @@ abstract class BaseAdLoader with AdLoaderMixin {
     loadTime = DateTime.now();
     state = AdLoadState.ready;
     retryAttempts = maxRetries;
+    retriesUsedForRequest = 0;
   }
 
   /// Centralized retry handling with exponential backoff strategy when ad fails to load.
   void handleFailureAndRetry(dynamic error, {VoidCallback? onRetry}) {
     handleLoadError(adLabel, error);
     loadTime = null;
+
+    final retryLimit = maxRetriesPerRequest;
+    if (retryLimit != null) {
+      if (retriesUsedForRequest < retryLimit) {
+        retriesUsedForRequest++;
+        AppLogger.log(
+          "Retrying $adLabel load in 2 seconds "
+          "(retry $retriesUsedForRequest of $retryLimit).",
+        );
+        scheduleReload(const Duration(seconds: 2), () {
+          if (onRetry != null) {
+            onRetry();
+          } else {
+            load();
+          }
+        });
+      } else {
+        retriesUsedForRequest = 0;
+        AppLogger.log(
+          "$adLabel gave up after $retryLimit retry. "
+          "Waiting for the next request.",
+        );
+      }
+      return;
+    }
+
     if (retryAttempts > 1) {
       retryAttempts--;
       // Exponential backoff: 2s, 4s, 8s delay before retrying
@@ -160,6 +194,10 @@ mixin AdLoaderMixin {
   /// Convenient boolean getter for failed status.
   bool get isFailed => state == AdLoadState.failed;
 
+  /// Automatic retries already used since the last success or give-up; only
+  /// meaningful when [BaseAdLoader.maxRetriesPerRequest] is set.
+  int retriesUsedForRequest = 0;
+
   /// Legacy reloadAdCount alias for retryAttempts.
   int get reloadAdCount => retryAttempts;
 
@@ -198,5 +236,6 @@ mixin AdLoaderMixin {
     state = AdLoadState.initial;
     counter = 0;
     retryAttempts = maxRetries;
+    retriesUsedForRequest = 0;
   }
 }

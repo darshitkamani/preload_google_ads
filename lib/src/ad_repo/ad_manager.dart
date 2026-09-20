@@ -57,6 +57,7 @@ class AdManager {
       nativeADLayout: config.nativeADLayout,
       bannerADLayout: config.bannerADLayout,
       themeMode: mode,
+      nativeRetryLimit: config.nativeRetryLimit,
     );
     await _syncNativeAdStyle(context: context);
   }

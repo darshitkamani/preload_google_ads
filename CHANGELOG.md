@@ -6,6 +6,7 @@
   - `OnDemandAppOpenAd`: an app open ad requested only when it should show (`loadAndShow()`, optionally on every return to the foreground via `startListening()`); shown only if it arrives within a timeout, never cached, never retried in the background.
   - Use them instead of the preloading formats by turning `AdFlag.showInterstitial` / `AdFlag.showRewardedInterstitial` (and `showOpenApp` + `showSplashAd` for app open) off.
   - All three honor the master `AdFlag.showAd`.
+- **Native retry limit** (opt-in): `AdConfigData.nativeRetryLimit`. A failed native ad load is retried that many times (one retry after 2 s for `1`), then the loader stops and waits for the next request, e.g. another screen asking for the ad. Left `null` (the default), the original indefinite backoff retry is unchanged.
 
 ## v1.0.7
 

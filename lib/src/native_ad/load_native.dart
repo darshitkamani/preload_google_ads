@@ -12,6 +12,9 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
   String get adLabel => adTypeLabel;
 
   @override
+  int? get maxRetriesPerRequest => nativeRetryLimit;
+
+  @override
   void load() {
     loadAd();
   }
@@ -38,6 +41,9 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
   /// Loads a native ad.
   Future<void> loadAd() async {
     if (ads.isNotEmpty || !prepareLoad()) return;
+    // A request made while an automatic retry is still pending (e.g. another
+    // screen asking for the ad) simply takes the retry's place.
+    if (maxRetriesPerRequest != null) cancelReloadTimer();
 
     try {
       NativeAd? nativeAd;

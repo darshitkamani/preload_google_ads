@@ -32,6 +32,12 @@ class AdConfigData {
   /// Theme mode for ad styling (system, light, or dark).
   final AdThemeMode themeMode;
 
+  /// How many automatic retries a failed native ad load gets before it stops
+  /// and waits for the next request (another screen asking for the ad).
+  /// `null` (the default) keeps retrying with backoff indefinitely; `1` means
+  /// one retry per failed request.
+  final int? nativeRetryLimit;
+
   /// Constructor for [AdConfigData].
   AdConfigData({
     this.adIDs,
@@ -40,6 +46,7 @@ class AdConfigData {
     this.nativeADLayout,
     this.bannerADLayout,
     this.themeMode = AdThemeMode.system,
+    this.nativeRetryLimit,
   });
 }
 
