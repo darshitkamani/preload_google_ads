@@ -14,7 +14,9 @@ import '../ad_internal.dart';
 /// This is a standalone class: it does not touch [InterAd], the counters in
 /// [AdCounter] or any of the [AdFlag] toggles, so it can be used instead of
 /// the preloading interstitial (turn that one off with
-/// `AdFlag.showInterstitial: false`) or alongside other formats.
+/// `AdFlag.showInterstitial: false`) or alongside other formats. The one
+/// switch it does honor is the master [AdFlag.showAd]: while that is off it
+/// counts nothing and never loads or shows an ad.
 ///
 /// ```dart
 /// final inter = OnDemandInterstitialAd(adUnitId: 'ca-app-pub-.../...', interval: 5);
@@ -55,7 +57,7 @@ class OnDemandInterstitialAd {
   /// Reports one screen navigation / tab change: counts it, starts loading one
   /// step before the ad is due, and shows the ad once it is due and ready.
   void onNavigation() {
-    if (_showing) return;
+    if (!shouldShowAd || _showing) return;
     _navigations++;
     if (_navigations < interval - 1) return;
 

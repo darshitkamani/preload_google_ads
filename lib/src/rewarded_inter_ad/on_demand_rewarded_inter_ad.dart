@@ -18,7 +18,8 @@ import '../ad_internal.dart';
 /// This is a standalone class: it does not touch [RewardInterAd] or any
 /// [AdFlag] toggle, so it can be used instead of the preloading rewarded
 /// interstitial (turn that one off with `AdFlag.showRewardedInterstitial:
-/// false`).
+/// false`). The one switch it does honor is the master [AdFlag.showAd]: while
+/// that is off [load] makes no request and completes with `null`.
 class OnDemandRewardedInterstitialAd {
   /// The AdMob ad unit id requested for every load.
   final String adUnitId;
@@ -36,6 +37,7 @@ class OnDemandRewardedInterstitialAd {
   /// ad did not arrive within [loadTimeout]; an ad that arrives after that is
   /// disposed rather than kept.
   Future<RewardedInterstitialAd?> load() {
+    if (!shouldShowAd) return Future.value(null);
     final completer = Completer<RewardedInterstitialAd?>();
     final timeout = Timer(loadTimeout, () {
       if (!completer.isCompleted) {

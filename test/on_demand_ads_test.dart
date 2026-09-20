@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_mobile_ads/src/ad_instance_manager.dart'
     show instanceManager;
 import 'package:preload_google_ads/preload_google_ads.dart';
+// AdManager is internal, but the tests need to swap its config.
+import 'package:preload_google_ads/src/ad_internal.dart' show AdManager;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +24,34 @@ void main() {
         return null;
       },
     );
+  });
+
+  group('master showAd switch', () {
+    late AdConfigData originalConfig;
+    setUp(() {
+      originalConfig = AdManager.instance.config;
+      AdManager.instance.config = AdConfigData(adFlag: AdFlag(showAd: false));
+    });
+    tearDown(() => AdManager.instance.config = originalConfig);
+
+    test('interstitial neither counts nor loads', () {
+      final ad = OnDemandInterstitialAd(adUnitId: 'unit', interval: 3);
+
+      for (var i = 0; i < 6; i++) {
+        ad.onNavigation();
+      }
+
+      expect(ad.navigationCount, 0);
+      expect(ad.isLoading, isFalse);
+      expect(loadCalls, isEmpty);
+    });
+
+    test('rewarded interstitial makes no request', () async {
+      final loader = OnDemandRewardedInterstitialAd(adUnitId: 'unit');
+
+      expect(await loader.load(), isNull);
+      expect(loadCalls, isEmpty);
+    });
   });
 
   group('OnDemandInterstitialAd', () {
