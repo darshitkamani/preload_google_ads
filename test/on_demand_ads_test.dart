@@ -52,6 +52,13 @@ void main() {
       expect(await loader.load(), isNull);
       expect(loadCalls, isEmpty);
     });
+
+    test('app open makes no request', () async {
+      final appOpen = OnDemandAppOpenAd(adUnitId: 'unit');
+
+      expect(await appOpen.loadAndShow(), isFalse);
+      expect(loadCalls, isEmpty);
+    });
   });
 
   group('OnDemandInterstitialAd', () {
@@ -120,6 +127,58 @@ void main() {
 
       expect(await loader.load(), isNull);
       expect(loadCalls.length, 1);
+    });
+  });
+
+  group('OnDemandAppOpenAd', () {
+    test('gives up without showing when the ad does not arrive in time',
+        () async {
+      final appOpen = OnDemandAppOpenAd(
+        adUnitId: 'unit',
+        loadTimeout: const Duration(milliseconds: 50),
+      );
+
+      expect(await appOpen.loadAndShow(), isFalse);
+      expect(loadCalls.length, 1);
+      expect(appOpen.isBusy, isFalse);
+    });
+
+    test('a call while one is in progress does nothing', () async {
+      final appOpen = OnDemandAppOpenAd(
+        adUnitId: 'unit',
+        loadTimeout: const Duration(milliseconds: 50),
+      );
+
+      final first = appOpen.loadAndShow();
+      expect(appOpen.isBusy, isTrue);
+      expect(await appOpen.loadAndShow(), isFalse);
+      await first;
+
+      expect(loadCalls.length, 1);
+    });
+
+    test('timeout argument overrides the default for one call', () async {
+      final appOpen = OnDemandAppOpenAd(
+        adUnitId: 'unit',
+        loadTimeout: const Duration(minutes: 5),
+      );
+
+      expect(
+        await appOpen.loadAndShow(timeout: const Duration(milliseconds: 50)),
+        isFalse,
+      );
+    });
+
+    test('makes a fresh request for every call, never a cached ad', () async {
+      final appOpen = OnDemandAppOpenAd(
+        adUnitId: 'unit',
+        loadTimeout: const Duration(milliseconds: 30),
+      );
+
+      await appOpen.loadAndShow();
+      await appOpen.loadAndShow();
+
+      expect(loadCalls.length, 2);
     });
   });
 }

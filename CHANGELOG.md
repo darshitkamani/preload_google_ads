@@ -3,7 +3,9 @@
 - **On-demand full-screen ads** (new, standalone classes -- existing preloading behavior is unchanged):
   - `OnDemandInterstitialAd`: an interstitial shown on every Nth navigation that starts loading one navigation earlier (the (N-1)th) instead of staying preloaded. If it is still loading when due it shows on the next navigation, and the following cycle loads/shows again on the same schedule.
   - `OnDemandRewardedInterstitialAd`: a rewarded interstitial requested only when needed (`load()` with a timeout, then `show(ad)`), with nothing preloaded or kept afterwards.
-  - Use them instead of the preloading formats by turning `AdFlag.showInterstitial` / `AdFlag.showRewardedInterstitial` off.
+  - `OnDemandAppOpenAd`: an app open ad requested only when it should show (`loadAndShow()`, optionally on every return to the foreground via `startListening()`); shown only if it arrives within a timeout, never cached, never retried in the background.
+  - Use them instead of the preloading formats by turning `AdFlag.showInterstitial` / `AdFlag.showRewardedInterstitial` (and `showOpenApp` + `showSplashAd` for app open) off.
+  - All three honor the master `AdFlag.showAd`.
 
 ## v1.0.7
 
