@@ -26,6 +26,7 @@ class RewardInterAd extends BaseAdLoader {
     if (!prepareLoad()) return;
 
     try {
+      AdStats.instance.rewardedInterReq.value++;
       RewardedInterstitialAd.load(
         adUnitId: unitIDRewardedInter,
         request: const AdRequest(),

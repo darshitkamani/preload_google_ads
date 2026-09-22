@@ -94,6 +94,7 @@ class OnDemandInterstitialAd {
     if (_loading || _isReady) return;
     _loading = true;
     try {
+      AdStats.instance.interReq.value++;
       InterstitialAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),

@@ -26,6 +26,7 @@ class RewardAd extends BaseAdLoader {
   void load() {
     if (!prepareLoad()) return;
     try {
+      AdStats.instance.rewardedReq.value++;
       RewardedAd.load(
         adUnitId: unitIDRewarded, // ID for the rewarded ad unit.
         request: const AdRequest(),

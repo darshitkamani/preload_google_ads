@@ -29,6 +29,7 @@ class InterAd extends BaseAdLoader {
   void load() {
     if (!prepareLoad()) return;
     try {
+      AdStats.instance.interReq.value++;
       InterstitialAd.load(
         adUnitId: unitIDInter,
         request: const AdRequest(),

@@ -47,6 +47,7 @@ class OnDemandRewardedAd {
       }
     });
     try {
+      AdStats.instance.rewardedReq.value++;
       RewardedAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),

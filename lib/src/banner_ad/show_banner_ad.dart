@@ -33,6 +33,7 @@ class _ShowBannerAdState extends State<ShowBannerAd> {
       final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(logicalScreenWidth.toInt());
       if (size == null) return;
 
+      AdStats.instance.bannerReq.value++;
       final stdBanner = BannerAd(
         adUnitId: unitIDBanner,
         size: size,

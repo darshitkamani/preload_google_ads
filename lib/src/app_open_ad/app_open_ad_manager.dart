@@ -148,6 +148,7 @@ class AppOpenAdManager extends BaseAdLoader {
     if (!prepareLoad()) return;
 
     try {
+      AdStats.instance.openAppReq.value++;
       /// Attempt to load the App Open ad.
       AppOpenAd.load(
         adUnitId: unitIDAppOpen,

@@ -47,6 +47,7 @@ class _ShowCollapsibleBannerAdState extends State<ShowCollapsibleBannerAd> {
         },
       );
 
+      AdStats.instance.bannerReq.value++;
       final colBanner = BannerAd(
         adUnitId: unitIDBanner,
         size: size,

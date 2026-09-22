@@ -26,6 +26,9 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
   /// The template style to use for this ad loader.
   NativeTemplateStyle? get templateStyle;
 
+  /// The stats for requests sent to Google.
+  ValueNotifier<int> get reqStats;
+
   /// The stats for loaded ads.
   ValueNotifier<int> get loadStats;
 
@@ -46,6 +49,7 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
     if (maxRetriesPerRequest != null) cancelReloadTimer();
 
     try {
+      reqStats.value++;
       NativeAd? nativeAd;
       nativeAd = NativeAd(
         factoryId: factoryId,
@@ -117,6 +121,10 @@ class LoadMediumNative extends BaseNativeAdLoader {
   NativeTemplateStyle? get templateStyle =>
       NativeADStyle.instance.nativeMediumTemplateStyle;
 
+  /// Statistics for medium native ad requests.
+  @override
+  ValueNotifier<int> get reqStats => AdStats.instance.nativeReqM;
+
   /// Statistics for medium native ad loads.
   @override
   ValueNotifier<int> get loadStats => AdStats.instance.nativeLoadM;
@@ -156,6 +164,10 @@ class LoadSmallNative extends BaseNativeAdLoader {
   @override
   NativeTemplateStyle? get templateStyle =>
       NativeADStyle.instance.nativeSmallTemplateStyle;
+
+  /// Statistics for small native ad requests.
+  @override
+  ValueNotifier<int> get reqStats => AdStats.instance.nativeReqS;
 
   /// Statistics for small native ad loads.
   @override

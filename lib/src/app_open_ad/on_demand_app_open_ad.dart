@@ -90,6 +90,7 @@ class OnDemandAppOpenAd {
       }
     });
     try {
+      AdStats.instance.openAppReq.value++;
       AppOpenAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),

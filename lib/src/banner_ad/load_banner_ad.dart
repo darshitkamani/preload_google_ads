@@ -77,6 +77,7 @@ class LoadBannerAd extends BaseAdLoader {
           : const AdRequest();
 
       // Create and configure the banner ad.
+      AdStats.instance.bannerReq.value++;
       bannerAd = BannerAd(
         adUnitId: unitIDBanner,
         size: size,

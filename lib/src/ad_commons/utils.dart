@@ -164,6 +164,11 @@ class AdStats {
   static AdStats get instance => _instance;
 
   /// Statistics for Interstitial Ads
+  /// Number of interstitial ad requests sent to Google -- bumped right
+  /// before each `InterstitialAd.load()` call, so it counts every attempt
+  /// (including retries), unlike [interLoad] which only counts successes.
+  final ValueNotifier<int> interReq = ValueNotifier(0);
+
   /// Number of interstitial ads loaded.
   final ValueNotifier<int> interLoad = ValueNotifier(0);
 
@@ -174,6 +179,9 @@ class AdStats {
   final ValueNotifier<int> interFailed = ValueNotifier(0);
 
   /// Statistics for Rewarded Ads
+  /// Number of rewarded ad requests sent to Google.
+  final ValueNotifier<int> rewardedReq = ValueNotifier(0);
+
   /// Number of rewarded ads loaded.
   final ValueNotifier<int> rewardedLoad = ValueNotifier(0);
 
@@ -184,6 +192,9 @@ class AdStats {
   final ValueNotifier<int> rewardedFailed = ValueNotifier(0);
 
   /// Statistics for Rewarded Interstitial Ads
+  /// Number of rewarded interstitial ad requests sent to Google.
+  final ValueNotifier<int> rewardedInterReq = ValueNotifier(0);
+
   /// Number of rewarded interstitial ads loaded.
   final ValueNotifier<int> rewardedInterLoad = ValueNotifier(0);
 
@@ -194,6 +205,9 @@ class AdStats {
   final ValueNotifier<int> rewardedInterFailed = ValueNotifier(0);
 
   /// Statistics for Small Native Ads
+  /// Number of small native ad requests sent to Google.
+  final ValueNotifier<int> nativeReqS = ValueNotifier(0);
+
   /// Number of small native ads loaded.
   final ValueNotifier<int> nativeLoadS = ValueNotifier(0);
 
@@ -204,6 +218,9 @@ class AdStats {
   final ValueNotifier<int> nativeFailedS = ValueNotifier(0);
 
   /// Statistics for Medium Native Ads
+  /// Number of medium native ad requests sent to Google.
+  final ValueNotifier<int> nativeReqM = ValueNotifier(0);
+
   /// Number of medium native ads loaded.
   final ValueNotifier<int> nativeLoadM = ValueNotifier(0);
 
@@ -214,6 +231,9 @@ class AdStats {
   final ValueNotifier<int> nativeFailedM = ValueNotifier(0);
 
   /// Statistics for App Open Ads
+  /// Number of app open ad requests sent to Google.
+  final ValueNotifier<int> openAppReq = ValueNotifier(0);
+
   /// Number of app open ads loaded.
   final ValueNotifier<int> openAppLoad = ValueNotifier(0);
 
@@ -224,6 +244,9 @@ class AdStats {
   final ValueNotifier<int> openAppFailed = ValueNotifier(0);
 
   /// Statistics for Banner Ads
+  /// Number of banner ad requests sent to Google.
+  final ValueNotifier<int> bannerReq = ValueNotifier(0);
+
   /// Number of banner ads loaded.
   final ValueNotifier<int> bannerLoad = ValueNotifier(0);
 

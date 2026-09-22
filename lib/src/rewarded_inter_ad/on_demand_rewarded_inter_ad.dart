@@ -46,6 +46,7 @@ class OnDemandRewardedInterstitialAd {
       }
     });
     try {
+      AdStats.instance.rewardedInterReq.value++;
       RewardedInterstitialAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),
