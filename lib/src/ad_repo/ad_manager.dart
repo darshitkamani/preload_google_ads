@@ -147,8 +147,9 @@ class AdManager {
   }
 
   /// Displays the ad counter (if available).
-  Widget showAdCounter({bool? showCounter}) {
-    return PlugAd.getInstance().showAdCounter(showCounter ?? true);
+  Widget showAdCounter({bool? showCounter, bool showInRelease = false}) {
+    return PlugAd.getInstance()
+        .showAdCounter(showCounter ?? true, showInRelease: showInRelease);
   }
 
   /// Shows the interstitial ad and invokes the provided callback with the ad or error.

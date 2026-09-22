@@ -6,8 +6,19 @@ class AdCounterWidget extends StatefulWidget {
   /// Whether the counter widget should be currently visible.
   final ValueNotifier<bool> showCounter;
 
+  /// Whether [showCounter] is honored in release builds too. Defaults to
+  /// `false`, which keeps the original behavior of the widget never
+  /// rendering outside debug mode regardless of [showCounter]. Pass `true`
+  /// (e.g. driven by a remote config flag) to allow it in a live release
+  /// build as well, for diagnosing a fill-rate issue in production.
+  final bool showInRelease;
+
   /// Constructor to receive a ValueNotifier to control whether the counter should be shown.
-  const AdCounterWidget({super.key, required this.showCounter});
+  const AdCounterWidget({
+    super.key,
+    required this.showCounter,
+    this.showInRelease = false,
+  });
 
   @override
   State<AdCounterWidget> createState() => _AdCounterWidgetState();
@@ -19,7 +30,7 @@ class _AdCounterWidgetState extends State<AdCounterWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (kReleaseMode) return const SizedBox.shrink();
+    if (kReleaseMode && !widget.showInRelease) return const SizedBox.shrink();
 
     return ValueListenableBuilder<bool>(
       valueListenable: widget.showCounter,

@@ -77,7 +77,8 @@ abstract class AdRepo {
 
   /// Displays the ad counter.
   /// The [showCounter] boolean determines if the ad counter should be shown.
-  Widget showAdCounter(bool showCounter);
+  /// [showInRelease] lets it be honored in release builds too (default off).
+  Widget showAdCounter(bool showCounter, {bool showInRelease = false});
 
   /// Resets all ad state and disposes of loaded ads.
   void resetAll();

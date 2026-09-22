@@ -108,8 +108,16 @@ class PreloadGoogleAds {
   }
 
   /// Toggles the diagnostic real-time ad counter overlay widget.
-  Widget showAdCounter({bool? showCounter}) {
-    return _adManager.showAdCounter(showCounter: showCounter);
+  ///
+  /// By default this never renders in a release build, regardless of
+  /// [showCounter] -- pass [showInRelease]: true (e.g. from a remote config
+  /// flag) to allow it in release too, so it can be turned on for a build
+  /// already in production without shipping a new release.
+  Widget showAdCounter({bool? showCounter, bool showInRelease = false}) {
+    return _adManager.showAdCounter(
+      showCounter: showCounter,
+      showInRelease: showInRelease,
+    );
   }
 
   /// Displays a preloaded full-screen Interstitial ad based on configured click frequency.

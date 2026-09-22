@@ -28,8 +28,11 @@ class AdRepoImpl extends AdRepo {
 
   /// Displays the ad counter widget. The [showCounter] value determines if the counter should be shown.
   @override
-  Widget showAdCounter(bool showCounter) {
-    return AdCounterWidget(showCounter: ValueNotifier(showCounter));
+  Widget showAdCounter(bool showCounter, {bool showInRelease = false}) {
+    return AdCounterWidget(
+      showCounter: ValueNotifier(showCounter),
+      showInRelease: showInRelease,
+    );
   }
 
   /// Displays a standard anchored banner ad.
