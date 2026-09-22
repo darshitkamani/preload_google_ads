@@ -40,30 +40,37 @@ class LoadBannerAd extends BaseAdLoader {
     BannerAd? bannerAd;
 
     try {
-      // Get the current screen's physical size.
-      final view = PlatformDispatcher.instance.implicitView;
-      if (view == null) {
-        state = AdLoadState.failed;
-        return;
-      }
+      // Collapsible banners still need an adaptive slot to expand into;
+      // the standard (non-collapsible) banner uses the fixed 320x50 size so
+      // it doesn't reserve more height than a real ad creative fills.
+      AdSize size = AdSize.banner;
+      if (isCollapsible != null) {
+        // Get the current screen's physical size.
+        final view = PlatformDispatcher.instance.implicitView;
+        if (view == null) {
+          state = AdLoadState.failed;
+          return;
+        }
 
-      final double logicalScreenWidth =
-          view.physicalSize.width / view.devicePixelRatio;
+        final double logicalScreenWidth =
+            view.physicalSize.width / view.devicePixelRatio;
 
-      if (logicalScreenWidth <= 0) {
-        state = AdLoadState.failed;
-        return;
-      }
+        if (logicalScreenWidth <= 0) {
+          state = AdLoadState.failed;
+          return;
+        }
 
-      // Get the appropriate size for the banner ad based on the screen width.
-      final AnchoredAdaptiveBannerAdSize? size =
-          await AdSize.getLargeAnchoredAdaptiveBannerAdSize(
-        logicalScreenWidth.toInt(),
-      );
+        // Get the appropriate size for the banner ad based on the screen width.
+        final AnchoredAdaptiveBannerAdSize? adaptiveSize =
+            await AdSize.getLargeAnchoredAdaptiveBannerAdSize(
+          logicalScreenWidth.toInt(),
+        );
 
-      if (size == null) {
-        state = AdLoadState.failed;
-        return;
+        if (adaptiveSize == null) {
+          state = AdLoadState.failed;
+          return;
+        }
+        size = adaptiveSize;
       }
 
       // Configure request extras for Collapsible Banner if specified.

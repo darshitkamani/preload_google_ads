@@ -25,18 +25,10 @@ class _ShowBannerAdState extends State<ShowBannerAd> {
 
   Future<void> _loadStandardBanner() async {
     try {
-      final view = PlatformDispatcher.instance.implicitView;
-      if (view == null) return;
-      final double logicalScreenWidth = view.physicalSize.width / view.devicePixelRatio;
-      if (logicalScreenWidth <= 0) return;
-
-      final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(logicalScreenWidth.toInt());
-      if (size == null) return;
-
       AdStats.instance.bannerReq.value++;
       final stdBanner = BannerAd(
         adUnitId: unitIDBanner,
-        size: size,
+        size: AdSize.banner,
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (Ad ad) {
