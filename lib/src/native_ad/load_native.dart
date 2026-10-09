@@ -1,3 +1,5 @@
+import 'package:flutter/scheduler.dart' show SchedulerPhase;
+
 import '../ad_internal.dart';
 
 /// Base class for loading native ads to reduce code duplication.
@@ -43,6 +45,17 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
 
   /// Loads a native ad.
   Future<void> loadAd() async {
+    // A load bumps ValueNotifiers (reqStats, and loadStats/failedStats via
+    // its callbacks) that widgets listen to -- the Ad Metrics Lab, native ad
+    // slots. Called while a frame is being built (e.g. from a native ad
+    // slot's initState), that marks those widgets dirty mid-build and throws
+    // "setState() or markNeedsBuild() called during build", so wait for the
+    // frame to finish instead.
+    final binding = WidgetsBinding.instance;
+    if (binding.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      binding.addPostFrameCallback((_) => loadAd());
+      return;
+    }
     if (ads.isNotEmpty || !prepareLoad()) return;
     // A request made while an automatic retry is still pending (e.g. another
     // screen asking for the ad) simply takes the retry's place.

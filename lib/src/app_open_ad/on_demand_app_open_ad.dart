@@ -1,14 +1,17 @@
 import '../ad_internal.dart';
 
 /// An app open ad that is **requested at the moment it should be shown** --
-/// nothing is preloaded, nothing is cached, and a failed request is never
-/// retried in the background.
+/// nothing is preloaded, and a failed request is never retried in the
+/// background.
 ///
 /// [loadAndShow] requests a fresh ad and shows it only if it arrives within
-/// [loadTimeout]; an ad that turns up later is thrown away, because an app
-/// open ad appearing after the user has already started using the app is
-/// worse than no ad. Call it once on a cold start, and use
-/// [startListening] to call it on every return from the background:
+/// [loadTimeout], because an app open ad popping up after the user has
+/// already started using the app is worse than no ad. An ad that turns up
+/// later isn't thrown away, though: it is kept (for up to [maxAge]) and shown
+/// straight away by the next [loadAndShow] -- typically the next return from
+/// the background -- instead of making a new request. Call it once on a cold
+/// start, and use [startListening] to call it on every return from the
+/// background:
 ///
 /// ```dart
 /// final appOpen = OnDemandAppOpenAd(adUnitId: 'ca-app-pub-.../...');
@@ -36,8 +39,17 @@ class OnDemandAppOpenAd {
     this.loadTimeout = const Duration(seconds: 4),
   });
 
+  /// How long an ad that arrived too late is kept for the next
+  /// [loadAndShow]. Kept well inside AdMob's 4-hour limit for app open ads.
+  static const Duration maxAge = Duration(hours: 3);
+
   bool _busy = false;
   StreamSubscription<AppState>? _appStateSub;
+
+  /// An ad that loaded after its [loadAndShow] had already given up, and when
+  /// it loaded -- shown by the next [loadAndShow] instead of a new request.
+  AppOpenAd? _lateAd;
+  DateTime? _lateAdLoadedAt;
 
   /// Whether a request or a showing ad is in progress right now. While this
   /// is true, further [loadAndShow] calls do nothing.
@@ -46,7 +58,9 @@ class OnDemandAppOpenAd {
   /// Whether this controller is currently reacting to app foreground events.
   bool get isListening => _appStateSub != null;
 
-  /// Requests an app open ad and shows it if it arrives within [loadTimeout].
+  /// Requests an app open ad and shows it if it arrives within [loadTimeout]
+  /// -- or, if an earlier request's ad arrived too late and is still fresh,
+  /// shows that one right away without a new request.
   ///
   /// Completes with `true` once the ad has been shown and dismissed, and with
   /// `false` if nothing was shown -- ads are off, another call is still in
@@ -57,6 +71,8 @@ class OnDemandAppOpenAd {
     if (!shouldShowAd || _busy) return false;
     _busy = true;
     try {
+      final late = _takeLateAd();
+      if (late != null) return await _show(late);
       final ad = await _load(timeout ?? loadTimeout);
       if (ad == null) return false;
       return await _show(ad);
@@ -100,7 +116,9 @@ class OnDemandAppOpenAd {
             timer.cancel();
             AdStats.instance.openAppLoad.value++;
             if (completer.isCompleted) {
-              ad.dispose();
+              // Arrived after loadAndShow gave up: keep it for the next one
+              // rather than wasting the load.
+              _storeLateAd(ad);
             } else {
               completer.complete(ad);
             }
@@ -119,6 +137,31 @@ class OnDemandAppOpenAd {
       if (!completer.isCompleted) completer.complete(null);
     }
     return completer.future;
+  }
+
+  void _storeLateAd(AppOpenAd ad) {
+    if (_lateAd != null) {
+      ad.dispose();
+      return;
+    }
+    AppLogger.log('On-demand app open ad arrived late; kept for next time.');
+    _lateAd = ad;
+    _lateAdLoadedAt = DateTime.now();
+  }
+
+  /// The kept late ad if it's still within [maxAge] (dropping it otherwise),
+  /// handing over ownership -- it's cleared either way.
+  AppOpenAd? _takeLateAd() {
+    final ad = _lateAd;
+    final loadedAt = _lateAdLoadedAt;
+    _lateAd = null;
+    _lateAdLoadedAt = null;
+    if (ad == null || loadedAt == null) return null;
+    if (DateTime.now().difference(loadedAt) > maxAge) {
+      ad.dispose();
+      return null;
+    }
+    return ad;
   }
 
   Future<bool> _show(AppOpenAd ad) {
