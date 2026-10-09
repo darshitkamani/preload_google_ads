@@ -100,6 +100,7 @@ class OnDemandInterstitialAd {
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
+            AdStats.instance.recordLoadSource(ad);
             AdStats.instance.interLoad.value++;
             ad.setImmersiveMode(true);
             _loading = false;

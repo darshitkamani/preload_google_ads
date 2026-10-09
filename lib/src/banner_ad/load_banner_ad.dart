@@ -91,6 +91,7 @@ class LoadBannerAd extends BaseAdLoader {
         request: request,
         listener: BannerAdListener(
           onAdLoaded: (Ad ad) {
+            AdStats.instance.recordLoadSource(ad);
             // Handle successful ad load.
             if (bannerAd != null) {
               bannerAdObject.add(bannerAd);

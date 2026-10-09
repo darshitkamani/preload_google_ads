@@ -53,6 +53,7 @@ class OnDemandRewardedAd {
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) {
+            AdStats.instance.recordLoadSource(ad);
             timeout.cancel();
             AdStats.instance.rewardedLoad.value++;
             if (completer.isCompleted) {

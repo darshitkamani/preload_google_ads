@@ -32,6 +32,7 @@ class RewardInterAd extends BaseAdLoader {
         request: const AdRequest(),
         rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
           onAdLoaded: (ad) {
+            AdStats.instance.recordLoadSource(ad);
             AdStats.instance.rewardedInterLoad.value++;
             _rewardedInterstitialAd = ad;
             _rewardedInterstitialAd!.setImmersiveMode(true);

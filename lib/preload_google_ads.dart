@@ -10,6 +10,9 @@ export 'package:flutter/services.dart';
 export 'package:google_mobile_ads/google_mobile_ads.dart';
 
 export 'src/ad_commons/constants.dart';
+// AdStats, so an app loading its own ads can count them in the Ad Metrics Lab
+// too (e.g. AdStats.instance.recordLoadSource).
+export 'src/ad_commons/utils.dart' show AdStats;
 export 'src/ad_commons/preload_data_model.dart';
 export 'src/ad_counter/ad_counter.dart';
 export 'src/ad_initial.dart';

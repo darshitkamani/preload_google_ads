@@ -156,6 +156,7 @@ class AppOpenAdManager extends BaseAdLoader {
         adLoadCallback: AppOpenAdLoadCallback(
           /// Callback when the ad is successfully loaded.
           onAdLoaded: (ad) {
+            AdStats.instance.recordLoadSource(ad);
             AdStats.instance.openAppLoad.value++;
             _appOpenAd = ad;
             handleLoadSuccess();

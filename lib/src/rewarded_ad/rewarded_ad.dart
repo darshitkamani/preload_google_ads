@@ -33,6 +33,7 @@ class RewardAd extends BaseAdLoader {
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           // Called when the ad has successfully loaded.
           onAdLoaded: (ad) {
+            AdStats.instance.recordLoadSource(ad);
             AdStats.instance.rewardedLoad.value++; // Increment ad load count.
             _rewardedAd = ad;
             _rewardedAd!.setImmersiveMode(true); // Enable immersive mode.

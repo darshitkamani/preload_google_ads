@@ -52,6 +52,7 @@ class OnDemandRewardedInterstitialAd {
         request: const AdRequest(),
         rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
           onAdLoaded: (ad) {
+            AdStats.instance.recordLoadSource(ad);
             timeout.cancel();
             AdStats.instance.rewardedInterLoad.value++;
             if (completer.isCompleted) {

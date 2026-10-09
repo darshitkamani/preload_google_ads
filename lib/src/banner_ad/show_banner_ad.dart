@@ -32,6 +32,7 @@ class _ShowBannerAdState extends State<ShowBannerAd> {
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (Ad ad) {
+            AdStats.instance.recordLoadSource(ad);
             if (mounted) {
               setState(() {
                 banner = ad as BannerAd;

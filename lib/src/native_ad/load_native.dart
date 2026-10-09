@@ -57,6 +57,7 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
         nativeTemplateStyle: templateStyle,
         listener: NativeAdListener(
           onAdLoaded: (ad) async {
+            AdStats.instance.recordLoadSource(ad);
             if (nativeAd != null) {
               ads.add(nativeAd);
             }

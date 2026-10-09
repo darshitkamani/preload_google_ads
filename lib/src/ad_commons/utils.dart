@@ -255,6 +255,20 @@ class AdStats {
 
   /// Number of banner ad load failures.
   final ValueNotifier<int> bannerFailed = ValueNotifier(0);
+
+  /// Ads loaded per ad source, across every format -- which network won each
+  /// request under AdMob mediation ("AdMob Network", "Meta Audience Network",
+  /// ...), read from the loaded ad's [ResponseInfo]. A new map is assigned on
+  /// every change so listeners fire.
+  final ValueNotifier<Map<String, int>> loadsBySource = ValueNotifier(const {});
+
+  /// Counts [ad] under the ad source that filled it. Call from `onAdLoaded`.
+  void recordLoadSource(Ad ad) {
+    final name = ad.responseInfo?.loadedAdapterResponseInfo?.adSourceName;
+    final source = (name == null || name.isEmpty) ? 'Unknown' : name;
+    final counts = loadsBySource.value;
+    loadsBySource.value = {...counts, source: (counts[source] ?? 0) + 1};
+  }
 }
 
 ///==============================================================================

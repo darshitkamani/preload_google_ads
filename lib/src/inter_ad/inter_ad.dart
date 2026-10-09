@@ -36,6 +36,7 @@ class InterAd extends BaseAdLoader {
         adLoadCallback: InterstitialAdLoadCallback(
           /// Called when the ad is loaded successfully.
           onAdLoaded: (InterstitialAd ad) {
+            AdStats.instance.recordLoadSource(ad);
             AdStats.instance.interLoad.value++;
             _interstitialAd = ad;
             _interstitialAd!.setImmersiveMode(true);

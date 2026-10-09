@@ -47,8 +47,10 @@ class _AdCounterWidgetState extends State<AdCounterWidget> {
                 left: (_position.dx + 65 > MediaQuery.of(context).size.width - 310)
                     ? MediaQuery.of(context).size.width - 320
                     : _position.dx,
-                top: (_position.dy + 65 > MediaQuery.of(context).size.height - 350)
-                    ? _position.dy - 340
+                // Opens above the button when there's no room below; the
+                // panel is ~410 tall with the ad source section.
+                top: (_position.dy + 65 > MediaQuery.of(context).size.height - 420)
+                    ? _position.dy - 410
                     : _position.dy + 60,
                 child: Material(
                   elevation: 0,
@@ -136,6 +138,9 @@ class _AdCounterWidgetState extends State<AdCounterWidget> {
                         _buildRowItem("Small Native", stats.nativeReqS, stats.nativeLoadS, stats.nativeImpS, stats.nativeFailedS, const Color(0xFF14B8A6)),
                         _buildRowItem("Medium Native", stats.nativeReqM, stats.nativeLoadM, stats.nativeImpM, stats.nativeFailedM, const Color(0xFF6366F1)),
                         _buildRowItem("App Open", stats.openAppReq, stats.openAppLoad, stats.openAppImp, stats.openAppFailed, const Color(0xFFEC4899)),
+                        const Divider(height: 14),
+                        // Which network filled each loaded ad (mediation).
+                        _buildSourceSection(stats.loadsBySource),
                       ],
                     ),
                   ),
@@ -199,6 +204,61 @@ class _AdCounterWidgetState extends State<AdCounterWidget> {
                 ),
               ),
             ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSourceSection(ValueNotifier<Map<String, int>> loadsBySource) {
+    return ValueListenableBuilder<Map<String, int>>(
+      valueListenable: loadsBySource,
+      builder: (context, counts, _) {
+        final sources = counts.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              "LOADS BY AD SOURCE",
+              style: TextStyle(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w900,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 4),
+            if (sources.isEmpty)
+              const Text(
+                "No ads loaded yet",
+                style: TextStyle(fontSize: 11, color: Colors.grey),
+              ),
+            for (final source in sources)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        source.key,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "${source.value}",
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         );
       },

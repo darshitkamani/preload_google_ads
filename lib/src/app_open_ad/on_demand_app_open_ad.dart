@@ -96,6 +96,7 @@ class OnDemandAppOpenAd {
         request: const AdRequest(),
         adLoadCallback: AppOpenAdLoadCallback(
           onAdLoaded: (ad) {
+            AdStats.instance.recordLoadSource(ad);
             timer.cancel();
             AdStats.instance.openAppLoad.value++;
             if (completer.isCompleted) {

@@ -54,6 +54,7 @@ class _ShowCollapsibleBannerAdState extends State<ShowCollapsibleBannerAd> {
         request: request,
         listener: BannerAdListener(
           onAdLoaded: (Ad ad) {
+            AdStats.instance.recordLoadSource(ad);
             if (mounted) {
               setState(() {
                 banner = ad as BannerAd;
