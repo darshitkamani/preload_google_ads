@@ -58,6 +58,8 @@ class AdManager {
       bannerADLayout: config.bannerADLayout,
       themeMode: mode,
       nativeRetryLimit: config.nativeRetryLimit,
+      enableNativeFailureLimit: config.enableNativeFailureLimit,
+      nativeMaxFailuresPerSession: config.nativeMaxFailuresPerSession,
     );
     await _syncNativeAdStyle(context: context);
   }

@@ -17,7 +17,7 @@ class ShowNative extends StatelessWidget {
 
     if (loader.counter >= getNativeCounter) {
       loader.resetCounter();
-      if (shouldShowNativeAd) {
+      if (loader.isEnabled) {
         // Show either small or medium native ad based on the `isSmall` flag.
         return isSmall ? const NativeSmall() : const MediumNative();
       } else {

@@ -7,8 +7,21 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
   /// List to store the loaded native ads.
   List<NativeAd> ads = [];
 
+  /// Failed native loads so far this session, small and medium combined --
+  /// static so both loaders share it, and never cleared by [reset] (which
+  /// reloadNativeAd calls), only by a new app process.
+  static int _sessionFailures = 0;
+
+  /// Whether [AdConfigData.nativeMaxFailuresPerSession] has been hit, which
+  /// switches native off for the rest of the session. Always `false` while
+  /// the cap is disabled.
+  static bool get failureLimitReached {
+    final max = nativeMaxFailuresPerSession;
+    return max != null && _sessionFailures >= max;
+  }
+
   @override
-  bool get isEnabled => shouldShowNativeAd;
+  bool get isEnabled => shouldShowNativeAd && !failureLimitReached;
 
   @override
   String get adLabel => adTypeLabel;
@@ -87,9 +100,11 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
             impStats.value++;
           },
           onAdFailedToLoad: (ad, error) {
-            failedStats.value++;
             ad.dispose();
-            handleFailureAndRetry(error, onRetry: () => loadAd());
+            // Before the failedStats bump, so slots reacting to it already
+            // see the cap (state) -- same ordering reason as onAdLoaded.
+            _onLoadFailed(error);
+            failedStats.value++;
           },
         ),
         request: const AdRequest(),
@@ -98,8 +113,25 @@ abstract class BaseNativeAdLoader extends BaseAdLoader {
     } catch (error) {
       state = AdLoadState.failed;
       AppLogger.error("Error in $adTypeLabel ad load catch: $error");
-      handleFailureAndRetry(error, onRetry: () => loadAd());
+      _onLoadFailed(error);
     }
+  }
+
+  /// Counts the failure toward the session cap, then retries as usual --
+  /// unless that was the failure that hit the cap, in which case no retry is
+  /// scheduled and any pending one is dropped.
+  void _onLoadFailed(Object error) {
+    _sessionFailures++;
+    if (failureLimitReached) {
+      handleLoadError(adLabel, error);
+      cancelReloadTimer();
+      AppLogger.log(
+        "Native ads stopped for this session after $_sessionFailures "
+        "failed loads (nativeMaxFailuresPerSession).",
+      );
+      return;
+    }
+    handleFailureAndRetry(error, onRetry: () => loadAd());
   }
 
   /// Disposes of all loaded ads and resets the state.

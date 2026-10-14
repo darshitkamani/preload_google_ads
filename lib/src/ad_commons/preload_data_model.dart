@@ -38,6 +38,26 @@ class AdConfigData {
   /// one retry per failed request.
   final int? nativeRetryLimit;
 
+  /// Turns on the per-session cap on failed native ad loads -- see
+  /// [nativeMaxFailuresPerSession]. `false` (the default) leaves native
+  /// loading uncapped, exactly as before.
+  final bool enableNativeFailureLimit;
+
+  /// Only used when [enableNativeFailureLimit] is `true`: once this many
+  /// native ad loads have failed in total this app session (small and medium
+  /// combined, automatic retries included, successful loads in between not
+  /// resetting it), native ads stop for the rest of the session -- no more
+  /// requests are sent, and native slots render nothing. The count starts
+  /// over on the next cold start.
+  ///
+  /// Must be at least 1; anything lower is replaced by
+  /// [defaultNativeMaxFailuresPerSession] (and asserts in debug builds).
+  final int nativeMaxFailuresPerSession;
+
+  /// The value [nativeMaxFailuresPerSession] defaults to, and falls back to
+  /// when given an invalid one.
+  static const int defaultNativeMaxFailuresPerSession = 3;
+
   /// Constructor for [AdConfigData].
   AdConfigData({
     this.adIDs,
@@ -47,7 +67,13 @@ class AdConfigData {
     this.bannerADLayout,
     this.themeMode = AdThemeMode.system,
     this.nativeRetryLimit,
-  });
+    this.enableNativeFailureLimit = false,
+    this.nativeMaxFailuresPerSession = defaultNativeMaxFailuresPerSession,
+  }) : assert(
+          !enableNativeFailureLimit || nativeMaxFailuresPerSession >= 1,
+          'nativeMaxFailuresPerSession must be at least 1 when '
+          'enableNativeFailureLimit is true.',
+        );
 }
 
 /// Configuration for the layout of banner ads.

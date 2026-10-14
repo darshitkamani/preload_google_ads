@@ -8,6 +8,7 @@
   - Use them instead of the preloading formats by turning `AdFlag.showInterstitial` / `AdFlag.showRewardedInterstitial` (`showRewarded` for rewarded video, and `showOpenApp` + `showSplashAd` for app open) off.
   - All of them honor the master `AdFlag.showAd`.
 - **Native retry limit** (opt-in): `AdConfigData.nativeRetryLimit`. A failed native ad load is retried that many times (one retry after 2 s for `1`), then the loader stops and waits for the next request, e.g. another screen asking for the ad. Left `null` (the default), the original indefinite backoff retry is unchanged.
+- **Native failure limit per session** (opt-in): `AdConfigData.enableNativeFailureLimit` + `nativeMaxFailuresPerSession` (default 3, must be at least 1). Once that many native loads have failed in total in one app session (small and medium combined, retries included), native ads stop until the next cold start: no further requests, and native slots render nothing. Check it with `PreloadGoogleAds.instance.isNativeFailureLimitReached`. Off by default, so existing apps are unaffected.
 
 ## v1.0.7
 

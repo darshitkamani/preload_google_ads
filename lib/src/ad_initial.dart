@@ -53,6 +53,12 @@ class PreloadGoogleAds {
     instance.reloadUnloadedAds();
   }
 
+  /// Whether native ads have been stopped for this session by
+  /// [AdConfigData.nativeMaxFailuresPerSession]. Always `false` unless
+  /// [AdConfigData.enableNativeFailureLimit] is on.
+  bool get isNativeFailureLimitReached =>
+      BaseNativeAdLoader.failureLimitReached;
+
   /// Displays a preloaded native ad widget.
   ///
   /// Accepts an optional [key] for subtree identity preservation during dynamic style rebuilds,

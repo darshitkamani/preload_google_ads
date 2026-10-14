@@ -90,6 +90,10 @@ Future<AdConfigData> setConfigData(AdConfigData? adConfig) async {
     ),
     themeMode: adConfig?.themeMode ?? preData.themeMode,
     nativeRetryLimit: adConfig?.nativeRetryLimit ?? preData.nativeRetryLimit,
+    enableNativeFailureLimit: adConfig?.enableNativeFailureLimit ??
+        preData.enableNativeFailureLimit,
+    nativeMaxFailuresPerSession: adConfig?.nativeMaxFailuresPerSession ??
+        preData.nativeMaxFailuresPerSession,
     nativeADLayout: NativeADLayout(
       lightDecoration: adConfig?.nativeADLayout?.lightDecoration ??
           preData.nativeADLayout?.lightDecoration,
@@ -322,6 +326,20 @@ String get unitIDRewardedInter =>
 
 /// Retry limit for failed native loads; `null` means unlimited (legacy).
 int? get nativeRetryLimit => config.nativeRetryLimit;
+
+/// Failed native loads allowed per session, or `null` when the cap is off
+/// ([AdConfigData.enableNativeFailureLimit]). An invalid (< 1) value falls
+/// back to [AdConfigData.defaultNativeMaxFailuresPerSession].
+int? get nativeMaxFailuresPerSession {
+  if (!config.enableNativeFailureLimit) return null;
+  final max = config.nativeMaxFailuresPerSession;
+  if (max >= 1) return max;
+  AppLogger.error(
+    "nativeMaxFailuresPerSession must be at least 1 (got $max); "
+    "using ${AdConfigData.defaultNativeMaxFailuresPerSession}.",
+  );
+  return AdConfigData.defaultNativeMaxFailuresPerSession;
+}
 
 /// Determines if any ads should be shown based on flags.
 bool get shouldShowAd => config.adFlag?.showAd == true;
